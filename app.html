@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Controle de Manutenção de Carreta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1220" />
+
+  <style>
+    :root{
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#e5e7eb;
+
+      --primary:#16a34a;
+      --primary-hover:#15803d;
+
+      --secondary:#2563eb;
+      --secondary-hover:#1d4ed8;
+
+      --warning:#f59e0b;
+      --danger:#dc2626;
+      --danger-hover:#b91c1c;
+
+      --dark:#0b1220;
+      --dark-2:#1e293b;
+
+      --shadow:0 10px 25px rgba(0,0,0,.08);
+      --shadow-soft:0 4px 12px rgba(0,0,0,.06);
+      --radius:18px;
+      --radius-sm:12px;
+
+      --status-box-bg:#fff7ed;
+      --status-box-bd:#fdba74;
+      --status-box-tx:#9a3412;
+
+      --status-aguardando-bg:#eff6ff;
+      --status-aguardando-bd:#93c5fd;
+      --status-aguardando-tx:#1d4ed8;
+
+      --status-manut-bg:#ecfdf5;
+      --status-manut-bd:#86efac;
+      --status-manut-tx:#166534;
+
+      --status-final-bg:#f1f5f9;
+      --status-final-bd:#cbd5e1;
+      --status-final-tx:#334155;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.08), transparent 22%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+      min-height:100%;
+    }
+
+    .topbar{
+      background:linear-gradient(135deg, #0b1220 0%, #172033 55%, #1f2937 100%);
+      color:#fff;
+      padding:14px 16px 22px;
+      box-shadow:var(--shadow);
+      position:sticky;
+      top:0;
+      z-index:50;
+    }
+
+    .topbar-inner{
+      max-width:1280px;
+      margin:0 auto;
+    }
+
+    .topbar-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .brand-logo{
+      width:46px;
+      height:46px;
+      border-radius:14px;
+      background:linear-gradient(135deg, #16a34a, #22c55e);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:22px;
+      box-shadow:0 10px 18px rgba(0,0,0,.2);
+      flex:none;
+    }
+
+    .brand-text{
+      min-width:0;
+    }
+
+    .brand-text small{
+      display:block;
+      opacity:.82;
+      margin-bottom:3px;
+      font-size:12px;
+      letter-spacing:.4px;
+    }
+
+    .brand-text h1{
+      margin:0;
+      font-size:20px;
+      line-height:1.15;
+    }
+
+    .brand-text p{
+      margin:4px 0 0;
+      font-size:13px;
+      opacity:.86;
+    }
+
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .user-pill{
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.12);
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      backdrop-filter:blur(6px);
+    }
+
+    .top-btn{
+      border:none;
+      min-height:40px;
+      padding:0 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+      transition:.18s transform,.18s opacity,.18s background;
+    }
+
+    .top-btn:active{ transform:scale(.99); }
+    .top-btn.light{
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .top-btn.light:hover{ background:rgba(255,255,255,.18); }
+
+    .topbar-chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .chip{
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.12);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      color:#fff;
+    }
+
+    .page{
+      max-width:1280px;
+      margin:0 auto;
+      padding:16px;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:400px 1fr;
+      gap:16px;
+      align-items:start;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-soft);
+      overflow:hidden;
+    }
+
+    .card-header{
+      padding:16px 18px 12px;
+      border-bottom:1px solid #f1f5f9;
+    }
+
+    .card-header h2,
+    .card-header h3{
+      margin:0;
+      font-size:18px;
+    }
+
+    .card-header p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .card-body{
+      padding:18px;
+    }
+
+    .form-grid{
+      display:grid;
+      gap:14px;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-size:13px;
+      font-weight:700;
+      color:#334155;
+    }
+
+    input, select, textarea, button{
+      font:inherit;
+    }
+
+    .input, .select, .textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      outline:none;
+      transition:.18s border-color, .18s box-shadow;
+      color:var(--text);
+    }
+
+    .input, .select{
+      height:46px;
+      padding:0 14px;
+    }
+
+    .textarea{
+      min-height:96px;
+      padding:12px 14px;
+      resize:vertical;
+    }
+
+    .input:focus, .select:focus, .textarea:focus{
+      border-color:#86efac;
+      box-shadow:0 0 0 4px rgba(34,197,94,.12);
+    }
+
+    .btn{
+      border:none;
+      min-height:46px;
+      padding:0 16px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      transition:.18s transform, .18s background, .18s opacity;
+    }
+
+    .btn:active{ transform:scale(.99); }
+
+    .btn-primary{ background:var(--primary); color:#fff; }
+    .btn-primary:hover{ background:var(--primary-hover); }
+
+    .btn-secondary{ background:#e2e8f0; color:#0f172a; }
+    .btn-secondary:hover{ background:#cbd5e1; }
+
+    .btn-blue{ background:var(--secondary); color:#fff; }
+    .btn-blue:hover{ background:var(--secondary-hover); }
+
+    .btn-danger{ background:var(--danger); color:#fff; }
+    .btn-danger:hover{ background:var(--danger-hover); }
+
+    .btn-sm{
+      min-height:36px;
+      padding:0 12px;
+      border-radius:12px;
+      font-size:13px;
+    }
+
+    .btn-block{ width:100%; }
+
+    .muted{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .helper{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .status-msg{
+      display:none;
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .status-msg.show{ display:block; }
+    .status-msg.ok{ background:#ecfdf5; color:#166534; border:1px solid #bbf7d0; }
+    .status-msg.warn{ background:#fffbeb; color:#92400e; border:1px solid #fde68a; }
+    .status-msg.err{ background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+
+    .checklist-builder{
+      display:grid;
+      gap:10px;
+      margin-top:6px;
+    }
+
+    .check-item{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+    }
+
+    .check-item .input{ height:42px; }
+    .icon-btn{
+      width:42px;
+      height:42px;
+      border:none;
+      border-radius:12px;
+      background:#fee2e2;
+      color:#b91c1c;
+      cursor:pointer;
+      font-size:18px;
+      font-weight:700;
+    }
+
+    .builder-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .dash-toolbar{
+      display:grid;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .dash-chips{
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0, 1fr));
+      gap:10px;
+    }
+
+    .count-chip{
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:#fff;
+      padding:12px;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .count-chip small{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:6px;
+    }
+
+    .count-chip strong{
+      display:block;
+      font-size:22px;
+    }
+
+    .filters{
+      display:grid;
+      grid-template-columns:1.3fr .8fr .8fr;
+      gap:10px;
+    }
+
+    .cards-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:14px;
+    }
+
+    .maint-card{
+      position:relative;
+      border-radius:18px;
+      background:#fff;
+      border:1px solid var(--border);
+      overflow:hidden;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .maint-card::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:6px;
+      background:#cbd5e1;
+    }
+
+    .maint-card[data-status="AGUARDANDO_BOX"]::before{ background:#fb923c; }
+    .maint-card[data-status="AGUARDANDO_MANUTENCAO"]::before{ background:#60a5fa; }
+    .maint-card[data-status="EM_MANUTENCAO"]::before{ background:#22c55e; }
+    .maint-card[data-status="FINALIZADA"]::before{ background:#94a3b8; }
+
+    .maint-head{
+      padding:16px 16px 10px 18px;
+      border-bottom:1px solid #f1f5f9;
+    }
+
+    .maint-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .maint-title{
+      min-width:0;
+    }
+
+    .maint-title h4{
+      margin:0;
+      font-size:18px;
+      line-height:1.2;
+    }
+
+    .maint-title p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+      border:1px solid transparent;
+    }
+
+    .status-badge[data-status="AGUARDANDO_BOX"]{
+      background:var(--status-box-bg);
+      border-color:var(--status-box-bd);
+      color:var(--status-box-tx);
+    }
+    .status-badge[data-status="AGUARDANDO_MANUTENCAO"]{
+      background:var(--status-aguardando-bg);
+      border-color:var(--status-aguardando-bd);
+      color:var(--status-aguardando-tx);
+    }
+    .status-badge[data-status="EM_MANUTENCAO"]{
+      background:var(--status-manut-bg);
+      border-color:var(--status-manut-bd);
+      color:var(--status-manut-tx);
+    }
+    .status-badge[data-status="FINALIZADA"]{
+      background:var(--status-final-bg);
+      border-color:var(--status-final-bd);
+      color:var(--status-final-tx);
+    }
+
+    .maint-body{
+      padding:14px 16px 16px 18px;
+      display:grid;
+      gap:12px;
+    }
+
+    .info-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .info-box{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:14px;
+      padding:10px 12px;
+    }
+
+    .info-box small{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      margin-bottom:4px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+
+    .info-box strong{
+      display:block;
+      font-size:14px;
+      word-break:break-word;
+    }
+
+    .obs-box{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:14px;
+      padding:12px;
+      font-size:13px;
+      line-height:1.45;
+      color:#334155;
+    }
+
+    .obs-box b{
+      display:block;
+      margin-bottom:6px;
+      color:#0f172a;
+    }
+
+    .mini-stats{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .mini-pill{
+      border-radius:999px;
+      background:#f1f5f9;
+      border:1px solid #e2e8f0;
+      padding:7px 10px;
+      font-size:12px;
+      color:#334155;
+      font-weight:700;
+    }
+
+    .checklist-box{
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .checklist-head{
+      padding:10px 12px;
+      border-bottom:1px solid #f1f5f9;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:#f8fafc;
+    }
+
+    .checklist-head strong{
+      font-size:14px;
+    }
+
+    .checklist-items{
+      display:grid;
+      gap:0;
+    }
+
+    .task-row{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:10px 12px;
+      border-top:1px solid #f8fafc;
+    }
+
+    .task-row:first-child{ border-top:none; }
+
+    .task-row input[type="checkbox"]{
+      width:18px;
+      height:18px;
+      margin-top:2px;
+      cursor:pointer;
+      accent-color:#16a34a;
+      flex:none;
+    }
+
+    .task-content{
+      min-width:0;
+      flex:1;
+    }
+
+    .task-content strong{
+      display:block;
+      font-size:13px;
+      line-height:1.35;
+      color:#0f172a;
+      word-break:break-word;
+    }
+
+    .task-content small{
+      display:block;
+      color:var(--muted);
+      margin-top:4px;
+      font-size:11px;
+      line-height:1.35;
+    }
+
+    .task-row.done strong{
+      text-decoration:line-through;
+      color:#64748b;
+    }
+
+    .card-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .empty-state{
+      border:1px dashed #cbd5e1;
+      border-radius:18px;
+      background:#fff;
+      padding:30px 18px;
+      text-align:center;
+      color:var(--muted);
+      box-shadow:var(--shadow-soft);
+    }
+
+    .footer-note{
+      margin-top:16px;
+      color:#64748b;
+      font-size:12px;
+      text-align:center;
+    }
+
+    .modal-wrap{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.48);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:200;
+    }
+
+    .modal-wrap.show{ display:flex; }
+
+    .modal{
+      width:min(760px, 100%);
+      max-height:92vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:20px;
+      box-shadow:0 30px 80px rgba(0,0,0,.22);
+      border:1px solid #e2e8f0;
+    }
+
+    .modal-head{
+      padding:16px 18px 12px;
+      border-bottom:1px solid #f1f5f9;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .modal-head h3{
+      margin:0;
+      font-size:18px;
+    }
+
+    .modal-body{
+      padding:18px;
+    }
+
+    .close-btn{
+      width:40px;
+      height:40px;
+      border:none;
+      border-radius:12px;
+      cursor:pointer;
+      background:#e2e8f0;
+      color:#0f172a;
+      font-size:20px;
+      font-weight:700;
+    }
+
+    .loading-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(255,255,255,.45);
+      backdrop-filter:blur(2px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:250;
+    }
+
+    .loading-overlay.show{ display:flex; }
+
+    .loading-box{
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:18px;
+      padding:18px 22px;
+      box-shadow:var(--shadow);
+      font-weight:700;
+      color:#0f172a;
+    }
+
+    .btn-status-box{
+  background:var(--status-box-bg);
+  color:var(--status-box-tx);
+  border:1px solid var(--status-box-bd);
+}
+.btn-status-box:hover{
+  filter:brightness(.98);
+}
+
+.btn-status-aguardando{
+  background:var(--status-aguardando-bg);
+  color:var(--status-aguardando-tx);
+  border:1px solid var(--status-aguardando-bd);
+}
+.btn-status-aguardando:hover{
+  filter:brightness(.98);
+}
+
+.btn-status-manut{
+  background:var(--status-manut-bg);
+  color:var(--status-manut-tx);
+  border:1px solid var(--status-manut-bd);
+}
+.btn-status-manut:hover{
+  filter:brightness(.98);
+}
+
+.btn-status-final{
+  background:var(--status-final-bg);
+  color:var(--status-final-tx);
+  border:1px solid var(--status-final-bd);
+}
+.btn-status-final:hover{
+  filter:brightness(.98);
+}
+
+    @media (max-width: 1100px){
+      .layout{
+        grid-template-columns:1fr;
+      }
+      .cards-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 760px){
+      .grid-2,
+      .filters,
+      .dash-chips,
+      .info-grid{
+        grid-template-columns:1fr;
+      }
+
+      .topbar{
+        padding:14px 14px 20px;
+      }
+
+      .page{
+        padding:14px;
+      }
+
+      .card-header,.card-body{
+        padding:16px;
+      }
+
+      .maint-head,.maint-body{
+        padding-left:16px;
+        padding-right:16px;
+      }
+
+      .card-actions .btn,
+      .builder-actions .btn{
+        width:100%;
+      }
+
+      .topbar-actions{
+        width:100%;
+        justify-content:flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-row">
+        <div class="brand">
+          <div class="brand-logo">🚛</div>
+          <div class="brand-text">
+            <small>CMC · Oficina</small>
+            <h1>Controle de Manutenção de CNP</h1>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="user-pill">
+            <span>👨‍🔧</span>
+            <span id="userLabel">Mecânico</span>
+          </div>
+          <button class="top-btn light" id="btnVoltarIndex">Trocar perfil</button>
+          <button class="top-btn light" id="btnLogout">Sair</button>
+        </div>
+      </div>
+
+  </header>
+
+  <main class="page">
+    <div class="layout">
+      <!-- FORMULÁRIO -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Nova carreta</h2>
+        </div>
+
+        <div class="card-body">
+          <form id="formCarreta" class="form-grid">
+                    <div>
+                 <label for="go">GO da carreta</label>
+                  <input id="go" class="input" type="text" placeholder="Ex.: 23489" />
+                </div>
+
+            <div class="grid-2">
+              <div>
+                <label for="dataHoraEntrada">Data e hora</label>
+                <input id="dataHoraEntrada" class="input" type="datetime-local" />
+              </div>
+
+              <div>
+  <label for="box">Box</label>
+  <select id="box" class="select">
+    <option value="">Selecione</option>
+    <option value="BOX 01">BOX 01</option>
+    <option value="BOX 02">BOX 02</option>
+    <option value="BOX 03">BOX 03</option>
+    <option value="BOX 04">BOX 04</option>
+    <option value="BOX 05">BOX 05</option>
+    <option value="BOX 06">BOX 06</option>
+    <option value="BOX 07">BOX 07</option>
+    <option value="BOX 08">BOX 08</option>
+    <option value="BOX 09">BOX 09</option>
+    <option value="BOX 10">BOX 10</option>
+    <option value="BOX 11">BOX 11</option>
+    <option value="BOX 12">BOX 12</option>
+    <option value="BOX 01 HEXA">BOX 01 HEXA</option>
+    <option value="BOX 02 HEXA">BOX 02 HEXA</option>
+    <option value="BOX 03 HEXA">BOX 03 HEXA</option>
+    <option value="BOX 04 HEXA">BOX 04 HEXA</option>
+    <option value="RAMPA TRITREM">RAMPA TRITREM</option>
+    <option value="RAMPA HEXATREM">RAMPA HEXATREM</option>
+    <option value="PÁTIO AGUARDANDO MANUTENÇÃO">PÁTIO AGUARDANDO MANUTENÇÃO</option>
+    <option value="PÁTIO CARRETAS LIBERADAS">PÁTIO CARRETAS LIBERADAS</option>
+  </select>
+</div>
+            </div>
+
+            <div class="grid-2">
+              <div>
+                <label for="status">Status</label>
+                <select id="status" class="select">
+                  <option value="AGUARDANDO_BOX">Aguardando box</option>
+                  <option value="AGUARDANDO_MANUTENCAO">Aguardando manutenção</option>
+                  <option value="EM_MANUTENCAO">Em manutenção</option>
+                  <option value="FINALIZADA">Finalizada</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="responsavel">Mecânico responsável</label>
+                <input id="responsavel" class="input" type="text" readonly />
+              </div>
+            </div>
+
+            <div>
+              <label for="observacoes">Observações</label>
+              <textarea id="observacoes" class="textarea" placeholder="Anotações iniciais, detalhes da carreta, pendências, peças, etc."></textarea>
+            </div>
+
+            <div>
+              <label>Lista de manutenções</label>
+              <div id="checklistBuilder" class="checklist-builder"></div>
+
+              <div class="builder-actions" style="margin-top:10px;">
+                <button type="button" class="btn btn-secondary" id="btnAddItemChecklist">+ Adicionar item</button>
+                <button type="button" class="btn btn-secondary" id="btnCarregarExemplo">Inserir exemplo</button>
+              </div>
+            </div>
+
+            <div class="builder-actions">
+              <button type="submit" class="btn btn-primary">Salvar carreta</button>
+              <button type="button" class="btn btn-secondary" id="btnLimparForm">Limpar</button>
+            </div>
+
+            <div id="statusForm" class="status-msg"></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section>
+        <div class="dash-toolbar">
+          <div class="dash-chips">
+            <div class="count-chip">
+              <small>Total</small>
+              <strong id="countTotal">0</strong>
+            </div>
+            <div class="count-chip">
+              <small>Aguardando box</small>
+              <strong id="countBox">0</strong>
+            </div>
+            <div class="count-chip">
+              <small>Aguardando manutenção</small>
+              <strong id="countAguardando">0</strong>
+            </div>
+            <div class="count-chip">
+              <small>Em manutenção</small>
+              <strong id="countEmManut">0</strong>
+            </div>
+            <div class="count-chip">
+              <small>Finalizadas</small>
+              <strong id="countFinal">0</strong>
+            </div>
+          </div>
+
+          <section class="card">
+            <div class="card-header">
+              <h3>Dashboard</h3>
+            </div>
+            <div class="card-body">
+              <div class="filters">
+                <div>
+                  <label for="busca">Buscar</label>
+<input id="busca" class="input" type="text" placeholder="GO, box, mecânico..." />                </div>
+
+                <div>
+                  <label for="filtroStatus">Filtrar por status</label>
+                  <select id="filtroStatus" class="select">
+                    <option value="">Todos</option>
+                    <option value="AGUARDANDO_BOX">Aguardando box</option>
+                    <option value="AGUARDANDO_MANUTENCAO">Aguardando manutenção</option>
+                    <option value="EM_MANUTENCAO">Em manutenção</option>
+                    <option value="FINALIZADA">Finalizada</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="ordenacao">Ordenação</label>
+                  <select id="ordenacao" class="select">
+                    <option value="STATUS_DATA">Status + mais recentes</option>
+                    <option value="RECENTES">Mais recentes</option>
+                    <option value="ANTIGOS">Mais antigos</option>
+                    <option value="BOX">Box</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div id="cardsWrap" class="cards-grid"></div>
+        <div id="emptyState" class="empty-state" style="display:none;">
+          Nenhuma carreta encontrada com os filtros atuais.
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- MODAL EDIÇÃO -->
+  <div class="modal-wrap" id="editModalWrap">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Editar carreta</h3>
+        <button class="close-btn" id="btnFecharModal" type="button">×</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="formEditar" class="form-grid">
+          <input type="hidden" id="editId" />
+
+          <div class="grid-2">
+            <div>
+              <label for="editCnpj">CNPJ</label>
+              <input id="editCnpj" class="input" type="text" />
+            </div>
+
+            <div>
+              <label for="editGo">GO</label>
+              <input id="editGo" class="input" type="text" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="editDataHora">Data e hora</label>
+              <input id="editDataHora" class="input" type="datetime-local" />
+            </div>
+
+            <div>
+              <label for="editBox">Box</label>
+              <input id="editBox" class="input" type="text" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="editStatus">Status</label>
+              <select id="editStatus" class="select">
+                <option value="AGUARDANDO_BOX">Aguardando box</option>
+                <option value="AGUARDANDO_MANUTENCAO">Aguardando manutenção</option>
+                <option value="EM_MANUTENCAO">Em manutenção</option>
+                <option value="FINALIZADA">Finalizada</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="editResponsavel">Responsável</label>
+              <input id="editResponsavel" class="input" type="text" />
+            </div>
+          </div>
+
+          <div>
+            <label for="editObs">Observações</label>
+            <textarea id="editObs" class="textarea"></textarea>
+          </div>
+
+          <div class="builder-actions">
+            <button type="submit" class="btn btn-primary">Salvar alterações</button>
+            <button type="button" class="btn btn-secondary" id="btnCancelarEdicao">Cancelar</button>
+          </div>
+
+          <div id="statusEdit" class="status-msg"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">Processando...</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      addDoc,
+      setDoc,
+      updateDoc,
+      getDoc,
+      onSnapshot,
+      serverTimestamp,
+      query,
+      orderBy,
+      writeBatch
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    /* =========================================================
+       FIREBASE CONFIG
+    ========================================================= */
+    const firebaseConfig = {
+  apiKey: "AIzaSyCBIoMQ1kv2mVpF5G68YrmGuspn7_bezCU",
+
+  authDomain: "controlemanutencao-4b112.firebaseapp.com",
+
+  projectId: "controlemanutencao-4b112",
+
+  storageBucket: "controlemanutencao-4b112.firebasestorage.app",
+
+  messagingSenderId: "112831760636",
+
+  appId: "1:112831760636:web:c5d3e50603e6726b14af79"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    /* =========================================================
+       CONSTANTES
+    ========================================================= */
+    const COLLECTION_CARRETAS = "carretas_manutencao";
+    const SUBCOL_ITENS = "itens_manutencao";
+
+    const LS_KEYS = {
+      PERFIL_ATUAL: "carreta_manut_perfil_atual",
+      PERFIS_RECENTES: "carreta_manut_perfis_recentes",
+      AUTOLOGIN: "carreta_manut_autologin"
+    };
+
+    const STATUS = {
+      AGUARDANDO_BOX: "AGUARDANDO_BOX",
+      AGUARDANDO_MANUTENCAO: "AGUARDANDO_MANUTENCAO",
+      EM_MANUTENCAO: "EM_MANUTENCAO",
+      FINALIZADA: "FINALIZADA"
+    };
+
+    const STATUS_LABEL = {
+      [STATUS.AGUARDANDO_BOX]: "Aguardando box",
+      [STATUS.AGUARDANDO_MANUTENCAO]: "Aguardando manutenção",
+      [STATUS.EM_MANUTENCAO]: "Em manutenção",
+      [STATUS.FINALIZADA]: "Finalizada"
+    };
+
+    const STATUS_ORDER = {
+      [STATUS.AGUARDANDO_BOX]: 1,
+      [STATUS.AGUARDANDO_MANUTENCAO]: 2,
+      [STATUS.EM_MANUTENCAO]: 3,
+      [STATUS.FINALIZADA]: 4
+    };
+
+    /* =========================================================
+       STATE
+    ========================================================= */
+    let perfilAtual = null;
+    let carretas = [];
+    let unsubCarretas = null;
+    const itensListeners = new Map();
+    const itensState = new Map();
+
+    /* =========================================================
+       HELPERS
+    ========================================================= */
+    const $ = (sel) => document.querySelector(sel);
+
+    function showLoading(show) {
+      $("#loadingOverlay").classList.toggle("show", !!show);
+    }
+
+    function normalizarTexto(txt = "") {
+      return String(txt)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toUpperCase();
+    }
+
+    function getPerfilAtualLocal() {
+      try {
+        return JSON.parse(localStorage.getItem(LS_KEYS.PERFIL_ATUAL) || "null");
+      } catch {
+        return null;
+      }
+    }
+
+    function salvarPerfilAtualLocal(perfil) {
+      localStorage.setItem(LS_KEYS.PERFIL_ATUAL, JSON.stringify(perfil));
+    }
+
+    function limparSessao() {
+      localStorage.removeItem(LS_KEYS.PERFIL_ATUAL);
+      localStorage.removeItem(LS_KEYS.AUTOLOGIN);
+    }
+
+    function showMsg(el, msg, type = "ok") {
+      el.textContent = msg;
+      el.className = `status-msg show ${type}`;
+    }
+
+    function hideMsg(el) {
+      el.textContent = "";
+      el.className = "status-msg";
+    }
+
+    function escapeHtml(str = "") {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatarData(ts) {
+      if (!ts) return "—";
+      try {
+        const d = ts?.toDate ? ts.toDate() : new Date(ts);
+        return d.toLocaleString("pt-BR");
+      } catch {
+        return "—";
+      }
+    }
+
+    function toInputDateTime(value) {
+      try {
+        const d = value?.toDate ? value.toDate() : new Date(value);
+        if (Number.isNaN(d.getTime())) return "";
+        const pad = (n) => String(n).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        const mm = pad(d.getMonth() + 1);
+        const dd = pad(d.getDate());
+        const hh = pad(d.getHours());
+        const mi = pad(d.getMinutes());
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+      } catch {
+        return "";
+      }
+    }
+
+    function agoraInputDateTime() {
+      return toInputDateTime(new Date());
+    }
+
+    function parseDateTimeLocalToDate(value) {
+      if (!value) return new Date();
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? new Date() : d;
+    }
+
+    function getTextoBuscaCarreta(item) {
+      return normalizarTexto([
+        item.go,
+        item.box,
+        item.mecanicoResponsavel,
+        item.criadoPor,
+        item.observacoes,
+        STATUS_LABEL[item.status] || item.status
+      ].filter(Boolean).join(" "));
+    }
+
+    function contarConcluidos(itens = []) {
+      return itens.filter(i => i.concluido).length;
+    }
+
+    function sortCarretas(lista, modo) {
+      const arr = [...lista];
+
+      if (modo === "RECENTES") {
+        arr.sort((a, b) => getDateMs(b) - getDateMs(a));
+        return arr;
+      }
+
+      if (modo === "ANTIGOS") {
+        arr.sort((a, b) => getDateMs(a) - getDateMs(b));
+        return arr;
+      }
+
+      if (modo === "BOX") {
+        arr.sort((a, b) => String(a.box || "").localeCompare(String(b.box || ""), "pt-BR", { numeric: true }));
+        return arr;
+      }
+
+      arr.sort((a, b) => {
+        const st = (STATUS_ORDER[a.status] || 99) - (STATUS_ORDER[b.status] || 99);
+        if (st !== 0) return st;
+        return getDateMs(b) - getDateMs(a);
+      });
+      return arr;
+    }
+
+    function getDateMs(item) {
+      const data = item.dataEntrada || item.criadoEm;
+      try {
+        if (data?.toDate) return data.toDate().getTime();
+        return new Date(data).getTime() || 0;
+      } catch {
+        return 0;
+      }
+    }
+
+    function addChecklistBuilderItem(valor = "") {
+      const wrap = $("#checklistBuilder");
+      const row = document.createElement("div");
+      row.className = "check-item";
+      row.innerHTML = `
+        <input class="input checklist-input" type="text" placeholder="Ex.: Trocar lona de freio" value="${escapeHtml(valor)}" />
+        <button type="button" class="icon-btn" title="Remover item">×</button>
+      `;
+      row.querySelector(".icon-btn").addEventListener("click", () => row.remove());
+      wrap.appendChild(row);
+    }
+
+    function getChecklistBuilderValues() {
+      return [...document.querySelectorAll(".checklist-input")]
+        .map(el => el.value.trim())
+        .filter(Boolean);
+    }
+
+    function preencherExemploChecklist() {
+      const exemplos = [
+        "Trocar lona de freio",
+        "Verificar mangueira de ar",
+        "Conferir suspensão",
+        "Revisar iluminação traseira"
+      ];
+      $("#checklistBuilder").innerHTML = "";
+      exemplos.forEach(addChecklistBuilderItem);
+    }
+
+function resetFormNovaCarreta() {
+  $("#go").value = "";
+  $("#dataHoraEntrada").value = agoraInputDateTime();
+  $("#box").value = "";
+  $("#status").value = STATUS.AGUARDANDO_BOX;
+  $("#observacoes").value = "";
+  $("#responsavel").value = perfilAtual?.nome || "";
+  $("#checklistBuilder").innerHTML = "";
+  addChecklistBuilderItem("");
+  hideMsg($("#statusForm"));
+}
+    function ensurePerfil() {
+      perfilAtual = getPerfilAtualLocal();
+      if (!perfilAtual?.nome || !perfilAtual?.id) {
+        window.location.href = "index.html";
+        return false;
+      }
+      return true;
+    }
+
+    /* =========================================================
+       PERFIL / TOPO
+    ========================================================= */
+    function carregarPerfilUI() {
+      $("#userLabel").textContent = perfilAtual?.nome || "Mecânico";
+      $("#responsavel").value = perfilAtual?.nome || "";
+    }
+
+    /* =========================================================
+       FIRESTORE - CRIAÇÃO
+    ========================================================= */
+async function salvarNovaCarreta() {
+  const statusEl = $("#statusForm");
+  hideMsg(statusEl);
+
+  const go = $("#go").value.trim().toUpperCase();
+  const dataHoraEntrada = $("#dataHoraEntrada").value;
+  const box = $("#box").value.trim();
+  const status = $("#status").value;
+  const observacoes = $("#observacoes").value.trim();
+  const mecanicoResponsavel = ($("#responsavel").value || perfilAtual?.nome || "").trim();
+  const checklist = getChecklistBuilderValues();
+
+  if (!go) {
+    showMsg(statusEl, "Informe a GO da carreta.", "warn");
+    $("#go").focus();
+    return;
+  }
+
+  if (!box) {
+    showMsg(statusEl, "Selecione o box.", "warn");
+    $("#box").focus();
+    return;
+  }
+
+  if (!mecanicoResponsavel) {
+    showMsg(statusEl, "Perfil de mecânico não identificado.", "err");
+    return;
+  }
+
+  showLoading(true);
+
+  try {
+    const entradaDate = parseDateTimeLocalToDate(dataHoraEntrada);
+
+    const payload = {
+      go,
+      goBusca: normalizarTexto(go),
+      box,
+      boxBusca: normalizarTexto(box),
+      status,
+      observacoes,
+      mecanicoResponsavel,
+      mecanicoResponsavelBusca: normalizarTexto(mecanicoResponsavel),
+      criadoPor: perfilAtual.nome,
+      criadoPorId: perfilAtual.id,
+      dataEntrada: entradaDate,
+      finalizadoEm: status === STATUS.FINALIZADA ? serverTimestamp() : null,
+      criadoEm: serverTimestamp(),
+      atualizadoEm: serverTimestamp()
+    };
+
+    const docRef = await addDoc(collection(db, COLLECTION_CARRETAS), payload);
+
+    if (checklist.length) {
+      const batch = writeBatch(db);
+      checklist.forEach((descricao, idx) => {
+        const itemRef = doc(collection(db, COLLECTION_CARRETAS, docRef.id, SUBCOL_ITENS));
+        batch.set(itemRef, {
+          descricao,
+          descricaoBusca: normalizarTexto(descricao),
+          concluido: false,
+          concluidoPor: null,
+          concluidoEm: null,
+          ordem: idx + 1,
+          criadoPor: perfilAtual.nome,
+          criadoEm: serverTimestamp(),
+          atualizadoEm: serverTimestamp()
+        });
+      });
+      await batch.commit();
+    }
+
+    showMsg(statusEl, "Carreta cadastrada com sucesso.", "ok");
+    resetFormNovaCarreta();
+  } catch (err) {
+    console.error(err);
+    showMsg(statusEl, "Erro ao salvar a carreta.", "err");
+  } finally {
+    showLoading(false);
+  }
+}
+    /* =========================================================
+       FIRESTORE - LISTA PRINCIPAL
+    ========================================================= */
+    function iniciarListenerCarretas() {
+      if (unsubCarretas) unsubCarretas();
+
+      const q = query(collection(db, COLLECTION_CARRETAS), orderBy("criadoEm", "desc"));
+
+      unsubCarretas = onSnapshot(q, (snap) => {
+        carretas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderDashboard();
+      }, (err) => {
+        console.error("Erro no listener de carretas:", err);
+        $("#cardsWrap").innerHTML = `
+          <div class="empty-state">
+            Erro ao carregar as carretas em tempo real.<br>
+            Veja no console se o Firestore pediu algum índice.
+          </div>
+        `;
+      });
+    }
+
+    /* =========================================================
+       FIRESTORE - ITENS POR CARD
+    ========================================================= */
+    function ensureItensListener(carretaId) {
+      if (itensListeners.has(carretaId)) return;
+
+      const q = query(collection(db, COLLECTION_CARRETAS, carretaId, SUBCOL_ITENS), orderBy("ordem", "asc"));
+
+      const unsub = onSnapshot(q, (snap) => {
+        const itens = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        itensState.set(carretaId, itens);
+        atualizarChecklistNoCard(carretaId, itens);
+        atualizarMiniStatsNoCard(carretaId, itens);
+      }, (err) => {
+        console.error("Erro ao ouvir itens da carreta", carretaId, err);
+      });
+
+      itensListeners.set(carretaId, unsub);
+    }
+
+    function cleanupItensListeners(idsAtivos = []) {
+      const ativos = new Set(idsAtivos);
+      for (const [id, unsub] of itensListeners.entries()) {
+        if (!ativos.has(id)) {
+          try { unsub(); } catch {}
+          itensListeners.delete(id);
+          itensState.delete(id);
+        }
+      }
+    }
+
+    async function toggleItemChecklist(carretaId, itemId, marcado) {
+      try {
+        await updateDoc(doc(db, COLLECTION_CARRETAS, carretaId, SUBCOL_ITENS, itemId), {
+          concluido: !!marcado,
+          concluidoPor: marcado ? perfilAtual.nome : null,
+          concluidoEm: marcado ? serverTimestamp() : null,
+          atualizadoEm: serverTimestamp()
+        });
+
+        await updateDoc(doc(db, COLLECTION_CARRETAS, carretaId), {
+          atualizadoEm: serverTimestamp()
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Não foi possível atualizar esse item.");
+      }
+    }
+
+    async function adicionarItemChecklistCard(carretaId) {
+      const descricao = prompt("Digite o novo item de manutenção:");
+      if (!descricao || !descricao.trim()) return;
+
+      const itens = itensState.get(carretaId) || [];
+      const ordem = itens.length + 1;
+
+      try {
+        await addDoc(collection(db, COLLECTION_CARRETAS, carretaId, SUBCOL_ITENS), {
+          descricao: descricao.trim(),
+          descricaoBusca: normalizarTexto(descricao),
+          concluido: false,
+          concluidoPor: null,
+          concluidoEm: null,
+          ordem,
+          criadoPor: perfilAtual.nome,
+          criadoEm: serverTimestamp(),
+          atualizadoEm: serverTimestamp()
+        });
+
+        await updateDoc(doc(db, COLLECTION_CARRETAS, carretaId), {
+          atualizadoEm: serverTimestamp()
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Não foi possível adicionar o item.");
+      }
+    }
+
+    /* =========================================================
+       FIRESTORE - AÇÕES RÁPIDAS
+    ========================================================= */
+    async function atualizarStatusCarreta(id, novoStatus) {
+      try {
+        await updateDoc(doc(db, COLLECTION_CARRETAS, id), {
+          status: novoStatus,
+          atualizadoEm: serverTimestamp(),
+          finalizadoEm: novoStatus === STATUS.FINALIZADA ? serverTimestamp() : null,
+          atualizadoPor: perfilAtual.nome
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Não foi possível atualizar o status.");
+      }
+    }
+
+async function abrirEdicao(id) {
+  try {
+    const snap = await getDoc(doc(db, COLLECTION_CARRETAS, id));
+    if (!snap.exists()) {
+      alert("Carreta não encontrada.");
+      return;
+    }
+
+    const item = { id: snap.id, ...snap.data() };
+
+    $("#editId").value = item.id;
+    $("#editGo").value = item.go || "";
+    $("#editDataHora").value = toInputDateTime(item.dataEntrada || item.criadoEm);
+    $("#editBox").value = item.box || "";
+    $("#editStatus").value = item.status || STATUS.AGUARDANDO_BOX;
+    $("#editResponsavel").value = item.mecanicoResponsavel || "";
+    $("#editObs").value = item.observacoes || "";
+
+    hideMsg($("#statusEdit"));
+    $("#editModalWrap").classList.add("show");
+  } catch (err) {
+    console.error(err);
+    alert("Não foi possível abrir a edição.");
+  }
+}
+
+async function salvarEdicao() {
+  const statusEl = $("#statusEdit");
+  hideMsg(statusEl);
+
+  const id = $("#editId").value;
+  const go = $("#editGo").value.trim().toUpperCase();
+  const dataHora = $("#editDataHora").value;
+  const box = $("#editBox").value.trim();
+  const status = $("#editStatus").value;
+  const responsavel = $("#editResponsavel").value.trim();
+  const observacoes = $("#editObs").value.trim();
+
+  if (!id) {
+    showMsg(statusEl, "Registro inválido.", "err");
+    return;
+  }
+
+  if (!go) {
+    showMsg(statusEl, "Informe a GO.", "warn");
+    return;
+  }
+
+  if (!box) {
+    showMsg(statusEl, "Selecione o box.", "warn");
+    return;
+  }
+
+  showLoading(true);
+
+  try {
+    await updateDoc(doc(db, COLLECTION_CARRETAS, id), {
+      go,
+      goBusca: normalizarTexto(go),
+      dataEntrada: parseDateTimeLocalToDate(dataHora),
+      box,
+      boxBusca: normalizarTexto(box),
+      status,
+      observacoes,
+      mecanicoResponsavel: responsavel,
+      mecanicoResponsavelBusca: normalizarTexto(responsavel),
+      atualizadoEm: serverTimestamp(),
+      atualizadoPor: perfilAtual.nome,
+      finalizadoEm: status === STATUS.FINALIZADA ? serverTimestamp() : null
+    });
+
+    showMsg(statusEl, "Alterações salvas.", "ok");
+    setTimeout(() => fecharModalEdicao(), 450);
+  } catch (err) {
+    console.error(err);
+    showMsg(statusEl, "Erro ao salvar edição.", "err");
+  } finally {
+    showLoading(false);
+  }
+}
+
+    function fecharModalEdicao() {
+      $("#editModalWrap").classList.remove("show");
+      hideMsg($("#statusEdit"));
+      $("#formEditar").reset();
+    }
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
+    function atualizarContadores(lista) {
+      $("#countTotal").textContent = lista.length;
+      $("#countBox").textContent = lista.filter(i => i.status === STATUS.AGUARDANDO_BOX).length;
+      $("#countAguardando").textContent = lista.filter(i => i.status === STATUS.AGUARDANDO_MANUTENCAO).length;
+      $("#countEmManut").textContent = lista.filter(i => i.status === STATUS.EM_MANUTENCAO).length;
+      $("#countFinal").textContent = lista.filter(i => i.status === STATUS.FINALIZADA).length;
+    }
+
+    function getCarretasFiltradas() {
+      const busca = normalizarTexto($("#busca").value);
+      const filtroStatus = $("#filtroStatus").value;
+      const ordenacao = $("#ordenacao").value;
+
+      let lista = [...carretas];
+
+      if (filtroStatus) {
+        lista = lista.filter(item => item.status === filtroStatus);
+      }
+
+      if (busca) {
+        lista = lista.filter(item => getTextoBuscaCarreta(item).includes(busca));
+      }
+
+      return sortCarretas(lista, ordenacao);
+    }
+
+    function renderDashboard() {
+      atualizarContadores(carretas);
+
+      const lista = getCarretasFiltradas();
+      const wrap = $("#cardsWrap");
+      const empty = $("#emptyState");
+
+      cleanupItensListeners(lista.map(i => i.id));
+
+      if (!lista.length) {
+        wrap.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+
+      empty.style.display = "none";
+
+      wrap.innerHTML = lista.map(item => {
+        const itens = itensState.get(item.id) || [];
+        const concluidos = contarConcluidos(itens);
+        const totalItens = itens.length;
+
+        return `
+          <article class="maint-card" data-status="${escapeHtml(item.status || "")}" id="card-${item.id}">
+            <div class="maint-head">
+              <div class="maint-top">
+                <div class="maint-title">
+                  <h4>${escapeHtml(item.go || "Sem GO")}</h4>
+                  <p>Cadastrado por ${escapeHtml(item.criadoPor || "—")} · ${escapeHtml(formatarData(item.dataEntrada || item.criadoEm))}</p>
+                </div>
+                <span class="status-badge" data-status="${escapeHtml(item.status || "")}">
+                  ${escapeHtml(STATUS_LABEL[item.status] || item.status || "—")}
+                </span>
+              </div>
+            </div>
+
+            <div class="maint-body">
+              <div class="info-grid">
+  <div class="info-box">
+    <small>BOX</small>
+    <strong>${escapeHtml(item.box || "—")}</strong>
+  </div>
+  <div class="info-box">
+    <small>Responsável</small>
+    <strong>${escapeHtml(item.mecanicoResponsavel || "—")}</strong>
+  </div>
+  <div class="info-box">
+    <small>Atualizado em</small>
+    <strong>${escapeHtml(formatarData(item.atualizadoEm || item.criadoEm))}</strong>
+  </div>
+</div>
+
+              ${
+                item.observacoes
+                  ? `<div class="obs-box"><b>Observações</b>${escapeHtml(item.observacoes)}</div>`
+                  : ""
+              }
+
+              <div class="mini-stats" id="mini-stats-${item.id}">
+                <span class="mini-pill">Checklist: ${concluidos}/${totalItens}</span>
+                <span class="mini-pill">Status: ${escapeHtml(STATUS_LABEL[item.status] || item.status || "—")}</span>
+              </div>
+
+              <div class="checklist-box">
+                <div class="checklist-head">
+                  <strong>Checklist de manutenção</strong>
+                  <button class="btn btn-secondary btn-sm" data-action="add-item" data-id="${item.id}">
+                    + Item
+                  </button>
+                </div>
+                <div class="checklist-items" id="checklist-${item.id}">
+                     ${renderChecklistHtml(item.id)}
+                </div>
+              </div>
+
+<div class="card-actions">
+  <button class="btn btn-status-box btn-sm" data-action="status" data-status="AGUARDANDO_BOX" data-id="${item.id}">
+    Aguardando box
+  </button>
+  <button class="btn btn-status-aguardando btn-sm" data-action="status" data-status="AGUARDANDO_MANUTENCAO" data-id="${item.id}">
+    Aguardando manutenção
+  </button>
+  <button class="btn btn-status-manut btn-sm" data-action="status" data-status="EM_MANUTENCAO" data-id="${item.id}">
+    Em manutenção
+  </button>
+  <button class="btn btn-status-final btn-sm" data-action="status" data-status="FINALIZADA" data-id="${item.id}">
+    Finalizar
+  </button>
+  <button class="btn btn-secondary btn-sm" data-action="edit" data-id="${item.id}">
+    Editar
+  </button>
+</div>            </div>
+          </article>
+        `;
+      }).join("");
+
+      lista.forEach(item => ensureItensListener(item.id));
+    }
+
+    function atualizarChecklistNoCard(carretaId, itens = []) {
+      const wrap = document.getElementById(`checklist-${carretaId}`);
+      if (!wrap) return;
+
+      if (!itens.length) {
+        wrap.innerHTML = `
+          <div class="task-row">
+            <div class="task-content">
+              <strong>Nenhum item cadastrado ainda.</strong>
+              <small>Use o botão + Item para adicionar serviços.</small>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      wrap.innerHTML = itens.map(item => `
+        <label class="task-row ${item.concluido ? "done" : ""}">
+          <input
+            type="checkbox"
+            ${item.concluido ? "checked" : ""}
+            data-action="toggle-item"
+            data-carreta-id="${carretaId}"
+            data-item-id="${item.id}"
+          />
+          <div class="task-content">
+            <strong>${escapeHtml(item.descricao || "—")}</strong>
+            <small>
+              ${
+                item.concluido
+                  ? `Concluído por ${escapeHtml(item.concluidoPor || "—")} · ${escapeHtml(formatarData(item.concluidoEm))}`
+                  : "Pendente"
+              }
+            </small>
+          </div>
+        </label>
+      `).join("");
+    }
+
+    function atualizarMiniStatsNoCard(carretaId, itens = []) {
+      const el = document.getElementById(`mini-stats-${carretaId}`);
+      if (!el) return;
+
+      const item = carretas.find(c => c.id === carretaId);
+      const concluidos = contarConcluidos(itens);
+
+      el.innerHTML = `
+        <span class="mini-pill">Checklist: ${concluidos}/${itens.length}</span>
+        <span class="mini-pill">Status: ${escapeHtml(STATUS_LABEL[item?.status] || item?.status || "—")}</span>
+      `;
+    }
+
+    function renderChecklistHtml(carretaId) {
+  const itens = itensState.get(carretaId) || [];
+
+  if (!itens.length) {
+    return `
+      <div class="task-row">
+        <div class="task-content">
+          <strong>Nenhum item cadastrado ainda.</strong>
+          <small>Use o botão + Item para adicionar serviços.</small>
+        </div>
+      </div>
+    `;
+  }
+
+  return itens.map(item => `
+    <label class="task-row ${item.concluido ? "done" : ""}">
+      <input
+        type="checkbox"
+        ${item.concluido ? "checked" : ""}
+        data-action="toggle-item"
+        data-carreta-id="${carretaId}"
+        data-item-id="${item.id}"
+      />
+      <div class="task-content">
+        <strong>${escapeHtml(item.descricao || "—")}</strong>
+        <small>
+          ${
+            item.concluido
+              ? `Concluído por ${escapeHtml(item.concluidoPor || "—")} · ${escapeHtml(formatarData(item.concluidoEm))}`
+              : "Pendente"
+          }
+        </small>
+      </div>
+    </label>
+  `).join("");
+}
+
+    /* =========================================================
+       EVENTOS
+    ========================================================= */
+    $("#btnAddItemChecklist").addEventListener("click", () => addChecklistBuilderItem(""));
+
+    $("#btnCarregarExemplo").addEventListener("click", preencherExemploChecklist);
+
+    $("#btnLimparForm").addEventListener("click", () => resetFormNovaCarreta());
+
+    $("#formCarreta").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await salvarNovaCarreta();
+    });
+
+    $("#busca").addEventListener("input", renderDashboard);
+    $("#filtroStatus").addEventListener("change", renderDashboard);
+    $("#ordenacao").addEventListener("change", renderDashboard);
+
+    $("#cardsWrap").addEventListener("click", async (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+
+      if (action === "status" && id) {
+        const novoStatus = btn.dataset.status;
+        if (!novoStatus) return;
+
+        if (novoStatus === STATUS.FINALIZADA) {
+          const ok = confirm("Deseja realmente marcar esta carreta como finalizada?");
+          if (!ok) return;
+        }
+
+        await atualizarStatusCarreta(id, novoStatus);
+      }
+
+      if (action === "edit" && id) {
+        await abrirEdicao(id);
+      }
+
+      if (action === "add-item" && id) {
+        await adicionarItemChecklistCard(id);
+      }
+    });
+
+    $("#cardsWrap").addEventListener("change", async (e) => {
+      const input = e.target.closest('input[type="checkbox"][data-action="toggle-item"]');
+      if (!input) return;
+
+      const carretaId = input.dataset.carretaId;
+      const itemId = input.dataset.itemId;
+      const marcado = input.checked;
+
+      await toggleItemChecklist(carretaId, itemId, marcado);
+    });
+
+    $("#formEditar").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await salvarEdicao();
+    });
+
+    $("#btnFecharModal").addEventListener("click", fecharModalEdicao);
+    $("#btnCancelarEdicao").addEventListener("click", fecharModalEdicao);
+
+    $("#editModalWrap").addEventListener("click", (e) => {
+      if (e.target.id === "editModalWrap") fecharModalEdicao();
+    });
+
+    $("#btnLogout").addEventListener("click", () => {
+      limparSessao();
+      window.location.href = "index.html";
+    });
+
+    $("#btnVoltarIndex").addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
+    /* =========================================================
+       INIT
+    ========================================================= */
+    function init() {
+      if (!ensurePerfil()) return;
+
+      carregarPerfilUI();
+      resetFormNovaCarreta();
+      iniciarListenerCarretas();
+    }
+
+    init();
+  </script>
+</body>
+</html>
