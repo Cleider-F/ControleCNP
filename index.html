@@ -1,1063 +1,355 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+ <!DOCTYPE html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>Controle de Manutenção de Carreta</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0b1220" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Geral</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1f2937">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icone-192.png">
+
+  <link rel="stylesheet" href="navbar.css">
 
   <style>
-    :root{
-      --bg:#f8fafc;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --border:#e5e7eb;
+    body { margin: 0; font-family: "Montserrat", Arial, sans-serif; background: #f1f3f6; }
 
-      --primary:#16a34a;
-      --primary-hover:#15803d;
-
-      --secondary:#0f172a;
-      --secondary-2:#1e293b;
-
-      --danger:#dc2626;
-      --danger-hover:#b91c1c;
-
-      --chip:#eff6ff;
-      --chip-text:#1d4ed8;
-
-      --shadow:0 10px 25px rgba(0,0,0,.08);
-      --shadow-soft:0 4px 12px rgba(0,0,0,.06);
-      --radius:18px;
-      --radius-sm:12px;
+    /* Estilo Base do Botão */
+    .auth-btn {
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
     }
 
-    *{ box-sizing:border-box; }
+    /* Cor quando for Logout */
+    .btn-logout { background: #000000; color: white; }
 
-    html,body{
-      margin:0;
-      padding:0;
-      font-family:Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(22,163,74,.08), transparent 28%),
-        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
-      color:var(--text);
-      min-height:100%;
+    /* Cor quando for Login */
+    .btn-login { background: #2196f3; color: white; }
+
+    .acoes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      padding: 20px;
     }
 
-    .topbar{
-      background:linear-gradient(135deg, #0b1220 0%, #172033 60%, #1f2937 100%);
-      color:#fff;
-      padding:18px 16px 26px;
-      box-shadow:var(--shadow);
-      position:relative;
-      overflow:hidden;
+    .botao {
+      background: white;
+      border-radius: 20px;
+      height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      transition: 0.2s;
+      cursor: pointer;
     }
 
-    .topbar::after{
-      content:"";
-      position:absolute;
-      right:-60px;
-      top:-60px;
-      width:180px;
-      height:180px;
-      background:rgba(255,255,255,.06);
-      border-radius:50%;
-    }
 
-    .topbar-inner{
-      max-width:1100px;
-      margin:0 auto;
-      position:relative;
-      z-index:1;
-    }
+    .botao div { font-size: 28px; margin-bottom: 5px; }
+    .botao:active { transform: scale(0.96); }
 
-    .brand-row{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:12px;
-    }
+    /* Novo Layout: Banner de Instalação do PWA */
+.banner-instalacao {
+  background: #2196f3;
+  color: white;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  animation: slideDown 0.3s ease-out;
+}
 
-    .brand-logo{
-      width:44px;
-      height:44px;
-      border-radius:14px;
-      background:linear-gradient(135deg, #16a34a, #22c55e);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:22px;
-      box-shadow:0 10px 18px rgba(0,0,0,.18);
-      flex:none;
-    }
+.btn-instalar-banner {
+  background: white;
+  color: #2196f3;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 13px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
 
-    .brand-text{
-      min-width:0;
-    }
-
-    .brand-text .overline{
-      display:block;
-      font-size:12px;
-      opacity:.8;
-      letter-spacing:.5px;
-      margin-bottom:2px;
-    }
-
-    .brand-text h1{
-      margin:0;
-      font-size:20px;
-      line-height:1.2;
-    }
-
-    .brand-text p{
-      margin:4px 0 0;
-      font-size:13px;
-      opacity:.82;
-    }
-
-    .hero-chips{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:12px;
-    }
-
-    .hero-chip{
-      background:rgba(255,255,255,.1);
-      border:1px solid rgba(255,255,255,.12);
-      color:#fff;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:12px;
-      backdrop-filter:blur(6px);
-    }
-
-    .page{
-      max-width:1100px;
-      margin:-10px auto 0;
-      padding:16px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:16px;
-      align-items:start;
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow-soft);
-      overflow:hidden;
-    }
-
-    .card-header{
-      padding:16px 18px 10px;
-      border-bottom:1px solid #f1f5f9;
-    }
-
-    .card-header h2{
-      margin:0;
-      font-size:18px;
-    }
-
-    .card-header p{
-      margin:6px 0 0;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .card-body{
-      padding:18px;
-    }
-
-    .section-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:10px;
-    }
-
-    .section-title h3{
-      margin:0;
-      font-size:15px;
-    }
-
-    .muted{
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .form-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:14px;
-    }
-
-    label{
-      display:block;
-      font-size:13px;
-      font-weight:700;
-      color:#334155;
-      margin-bottom:6px;
-    }
-
-    input, button, select{
-      font:inherit;
-    }
-
-    .input, .select{
-      width:100%;
-      height:46px;
-      border:1px solid var(--border);
-      border-radius:14px;
-      background:#fff;
-      padding:0 14px;
-      outline:none;
-      transition:.18s border-color, .18s box-shadow, .18s transform;
-      color:var(--text);
-    }
-
-    .input:focus, .select:focus{
-      border-color:#86efac;
-      box-shadow:0 0 0 4px rgba(34,197,94,.12);
-    }
-
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      border:none;
-      border-radius:14px;
-      min-height:46px;
-      padding:0 16px;
-      cursor:pointer;
-      font-weight:700;
-      transition:.18s transform, .18s opacity, .18s background;
-    }
-
-    .btn:active{
-      transform:scale(.99);
-    }
-
-    .btn-primary{
-      background:var(--primary);
-      color:#fff;
-    }
-
-    .btn-primary:hover{
-      background:var(--primary-hover);
-    }
-
-    .btn-secondary{
-      background:#e2e8f0;
-      color:#0f172a;
-    }
-
-    .btn-secondary:hover{
-      background:#cbd5e1;
-    }
-
-    .btn-danger{
-      background:var(--danger);
-      color:#fff;
-    }
-
-    .btn-danger:hover{
-      background:var(--danger-hover);
-    }
-
-    .btn-block{
-      width:100%;
-    }
-
-    .recent-list{
-      display:grid;
-      gap:10px;
-      margin-top:12px;
-    }
-
-    .profile-item{
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:#fff;
-      padding:12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .profile-left{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
-
-    .avatar{
-      width:42px;
-      height:42px;
-      border-radius:14px;
-      background:linear-gradient(135deg, #d1fae5, #bbf7d0);
-      color:#166534;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:800;
-      flex:none;
-    }
-
-    .profile-text{
-      min-width:0;
-    }
-
-    .profile-name{
-      font-weight:700;
-      color:#0f172a;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .profile-meta{
-      color:var(--muted);
-      font-size:12px;
-      margin-top:3px;
-    }
-
-    .profile-actions{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .btn-sm{
-      min-height:38px;
-      padding:0 12px;
-      border-radius:12px;
-      font-size:13px;
-    }
-
-    .empty{
-      border:1px dashed #cbd5e1;
-      border-radius:16px;
-      padding:18px;
-      color:var(--muted);
-      font-size:14px;
-      background:#f8fafc;
-      text-align:center;
-    }
-
-    .highlight-box{
-      background:linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding:16px;
-      margin-bottom:14px;
-    }
-
-    .highlight-box h4{
-      margin:0 0 8px;
-      font-size:15px;
-    }
-
-    .highlight-box ul{
-      margin:0;
-      padding-left:18px;
-      color:#475569;
-      line-height:1.6;
-      font-size:14px;
-    }
-
-    .status{
-      margin-top:12px;
-      display:none;
-      padding:12px 14px;
-      border-radius:14px;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .status.show{ display:block; }
-
-    .status.ok{
-      background:#ecfdf5;
-      color:#166534;
-      border:1px solid #bbf7d0;
-    }
-
-    .status.warn{
-      background:#fffbeb;
-      color:#92400e;
-      border:1px solid #fde68a;
-    }
-
-    .status.err{
-      background:#fef2f2;
-      color:#991b1b;
-      border:1px solid #fecaca;
-    }
-
-    .footer-note{
-      text-align:center;
-      margin:18px 0 2px;
-      color:#64748b;
-      font-size:12px;
-    }
-
-    .small-link{
-      border:none;
-      background:none;
-      color:#2563eb;
-      font-weight:700;
-      cursor:pointer;
-      padding:0;
-    }
-
-    .loading{
-      opacity:.65;
-      pointer-events:none;
-    }
-
-    @media (max-width: 900px){
-      .grid{
-        grid-template-columns:1fr;
-      }
-    }
-
-    @media (max-width: 640px){
-      .topbar{
-        padding:16px 14px 24px;
-      }
-
-      .brand-text h1{
-        font-size:18px;
-      }
-
-      .page{
-        padding:14px;
-      }
-
-      .card-header, .card-body{
-        padding:16px;
-      }
-
-      .profile-item{
-        flex-direction:column;
-        align-items:stretch;
-      }
-
-      .profile-actions{
-        justify-content:stretch;
-      }
-
-      .profile-actions .btn{
-        width:100%;
-      }
-    }
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
   </style>
 </head>
-<body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand-row">
-        <div class="brand-logo">🚛</div>
-        <div class="brand-text">
-          <span class="overline">CMC · Oficina</span>
-          <h1>Controle de Manutenção de CNP</h1>
-        </div>
-      </div>
 
-    </div>
-  </header>
+<body> 
+ <div class="topbar">
+  <span class="titulo-topbar">🏠 Início</span>
 
-  <main class="page">
-    <div class="grid">
-      <!-- COLUNA ESQUERDA -->
-      <section class="card">
-        <div class="card-header">
-          <h2>Entrar no sistema</h2>
-          <p>Entre com o seu perfil ou crie um novo para acessar o app.</p>
-        </div>
+  <img src="suzano-logo.png" class="logo-topbar">
 
-        <div class="card-body">
-          <div class="highlight-box">
-          </div>
+  <div class="topbar-acoes">
+    <button id="authBtn" class="auth-btn">Carregando...</button>
+  </div>
+</div>
 
-          <div class="section-title">
-            <h3>Perfis sugeridos</h3>
-            <span class="muted" id="recentCountLabel">0 perfis encontrados</span>
-          </div>
+<div id="bannerInstalar" class="banner-instalacao" style="display: none;">
+  <span>📲 Instalar App no seu celular?</span>
+  <button id="btnInstalarAcao" class="btn-instalar-banner">Instalar</button>
+</div>
 
-          <div id="recentProfiles" class="recent-list">
-            <div class="empty">Nenhum perfil salvo ainda neste aparelho.</div>
-          </div>
-
-          <div class="row" style="margin-top:12px;">
-            <button class="btn btn-secondary" id="btnRefreshProfiles">Atualizar lista</button>
-            <button class="btn btn-danger" id="btnClearLocalProfiles">Limpar perfis do aparelho</button>
-          </div>
-
-          <div id="statusRecent" class="status"></div>
-        </div>
-      </section>
-
-      <!-- COLUNA DIREITA -->
-      <section class="card">
-        <div class="card-header">
-          <h2>Criar ou acessar perfil</h2>
-          <p>Digite o nome do mecânico para criar um perfil novo.</p>
-        </div>
-
-        <div class="card-body">
-          <div class="form-grid">
-            <div>
-              <label for="nomeMecanico">Nome do mecânico</label>
-              <input
-                id="nomeMecanico"
-                class="input"
-                type="text"
-                placeholder="Ex.: Erik Mota"
-                maxlength="80"
-                autocomplete="name"
-              />
-            </div>
-
-            <div>
-              <label for="apelidoMecanico">Apelido opcional</label>
-              <input
-                id="apelidoMecanico"
-                class="input"
-                type="text"
-                placeholder="Ex.: Erik"
-                maxlength="40"
-              />
-            </div>
-
-            <div class="row">
-              <button class="btn btn-primary" id="btnEntrarPerfil">Entrar / Criar perfil</button>
-              <button class="btn btn-secondary" id="btnUsarUltimoPerfil">Usar último perfil</button>
-            </div>
-
-            <div id="statusLogin" class="status"></div>
-
-            <div class="muted">
-              </strong>.
-            </div>
-          </div>
-
-          <div class="footer-note">
-            Último perfil usado:
-            <strong id="lastProfileLabel">nenhum</strong>
-          </div>
-        </div>
-      </section>
-    </div>
-  </main>
+  <div class="acoes">
+    <div class="botao" onclick="ir('nova_inspecao.html')"><div>➕</div>Nova Inspeção</div>
+    <div class="botao" onclick="ir('inspecao.html')"><div>🔍</div>Inspeção</div>
+    <div class="botao" onclick="ir('manutencao.html')"><div>🔧</div>Manutenção</div>
+    <div class="botao" onclick="ir('tecnico.html')"><div>👷🏻‍♂️</div>Técnico</div>
+  </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      doc,
-      setDoc,
-      getDocs,
-      getDoc,
-      query,
-      where,
-      orderBy,
-      limit,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { auth } from "./firebase.js";
+    import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { carregarNavbar } from "./navbar.js";
+    import "./lista_solicitantes.js";
 
-    /* =========================================================
-       FIREBASE CONFIG
-       SUBSTITUA PELOS DADOS DO SEU PROJETO
-    ========================================================= */
-    const firebaseConfig = {
-  apiKey: "AIzaSyCBIoMQ1kv2mVpF5G68YrmGuspn7_bezCU",
+    const LISTA_SOLICITANTES = window.LISTA_SOLICITANTES || [];
 
-  authDomain: "controlemanutencao-4b112.firebaseapp.com",
-
-  projectId: "controlemanutencao-4b112",
-
-  storageBucket: "controlemanutencao-4b112.firebasestorage.app",
-
-  messagingSenderId: "112831760636",
-
-  appId: "1:112831760636:web:c5d3e50603e6726b14af79"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    /* =========================================================
-       CONSTANTES / STORAGE
-    ========================================================= */
-    const PERFIS_COLLECTION = "perfis_mecanicos";
-
-    const LS_KEYS = {
-      PERFIL_ATUAL: "carreta_manut_perfil_atual",
-      PERFIS_RECENTES: "carreta_manut_perfis_recentes",
-      AUTOLOGIN: "carreta_manut_autologin"
-    };
-
-    const PERFIS_LIMIT = 12;
-
-    /* =========================================================
-       HELPERS
-    ========================================================= */
-    const $ = (sel) => document.querySelector(sel);
-
-    function normalizarTexto(txt = "") {
-      return String(txt)
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toUpperCase();
+    if ("serviceWorker" in navigator) {
+      // Dica: Garanta também que o sw.js esteja sem a barra se estiver na mesma pasta
+      navigator.serviceWorker.register("sw.js") 
+        .then(() => console.log("PWA ativo"))
+        .catch(err => console.log(err));
     }
 
-    function slugPerfil(nome = "") {
-      return normalizarTexto(nome)
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, "")
-        .trim()
-        .replace(/\s+/g, "_")
-        .replace(/_+/g, "_");
+carregarNavbar(); 
+
+  const authBtn = document.getElementById("authBtn");
+
+  // --- OBSERVADOR DE USUÁRIO ---
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // Usuário está LOGADO
+      authBtn.innerText = "Sair 🚪";
+      authBtn.className = "auth-btn btn-logout";
+      authBtn.onclick = logout;
+    } else {
+      // Usuário está DESLOGADO
+      authBtn.innerText = "Login 🔑";
+      authBtn.className = "auth-btn btn-login";
+      authBtn.onclick = () => window.location.href = "login.html"; // Ajuste para o nome da sua página de login
     }
+  });
 
-    function obterIniciais(nome = "") {
-      const partes = nome.trim().split(/\s+/).filter(Boolean);
-      if (!partes.length) return "M";
-      if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
-      return (partes[0][0] + partes[1][0]).toUpperCase();
-    }
+  // Função para Navegação
+window.ir = async function(pagina) {
 
-    function formatarDataLocal(isoString) {
-      try {
-        const d = new Date(isoString);
-        return d.toLocaleString("pt-BR");
-      } catch {
-        return "Sem data";
-      }
-    }
+  // 🚛 Nova inspeção
+  if (pagina === "nova_inspecao.html") {
 
-    function showStatus(el, msg, type = "ok") {
-      el.textContent = msg;
-      el.className = `status show ${type}`;
-    }
+    const nomesOptions = LISTA_SOLICITANTES
+      .map(nome => `<option value="${nome}">`)
+      .join("");
 
-    function hideStatus(el) {
-      el.textContent = "";
-      el.className = "status";
-    }
+    const nome = await promptComLista(`
+      <div style="text-align:left;">
+      
+        <label style="
+          font-size:13px;
+          font-weight:bold;
+        ">
+          Nome do inspetor
+        </label>
 
-    function setLoading(el, active) {
-      if (!el) return;
-      if (active) el.classList.add("loading");
-      else el.classList.remove("loading");
-    }
+        <input
+          id="nomeInspetor"
+          list="listaInspetores"
+          placeholder="Digite o nome..."
+          style="
+            width:100%;
+            padding:10px;
+            margin-top:8px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            box-sizing:border-box;
+          "
+        >
 
-    function getPerfisRecentesLocal() {
-      try {
-        return JSON.parse(localStorage.getItem(LS_KEYS.PERFIS_RECENTES) || "[]");
-      } catch {
-        return [];
-      }
-    }
+        <datalist id="listaInspetores">
+          ${nomesOptions}
+        </datalist>
 
-    function salvarPerfisRecentesLocal(lista) {
-      localStorage.setItem(LS_KEYS.PERFIS_RECENTES, JSON.stringify(lista));
-    }
+      </div>
+    `);
 
-    function salvarPerfilAtualLocal(perfil) {
-      localStorage.setItem(LS_KEYS.PERFIL_ATUAL, JSON.stringify(perfil));
-      localStorage.setItem(LS_KEYS.AUTOLOGIN, "1");
-    }
+    if (!nome) return;
 
-    function getPerfilAtualLocal() {
-      try {
-        return JSON.parse(localStorage.getItem(LS_KEYS.PERFIL_ATUAL) || "null");
-      } catch {
-        return null;
-      }
-    }
+    localStorage.setItem("inspetorAtual", nome);
 
-    function adicionarPerfilAosRecentes(perfil) {
-      const lista = getPerfisRecentesLocal().filter(p => p.id !== perfil.id);
-      lista.unshift({
-        id: perfil.id,
-        nome: perfil.nome,
-        apelido: perfil.apelido || "",
-        ultimoAcessoEm: new Date().toISOString()
-      });
-      salvarPerfisRecentesLocal(lista.slice(0, PERFIS_LIMIT));
-    }
+    window.location =
+      "nova_inspecao.html?inspetor=" +
+      encodeURIComponent(nome);
 
-    function limparPerfisLocais() {
-      localStorage.removeItem(LS_KEYS.PERFIL_ATUAL);
-      localStorage.removeItem(LS_KEYS.PERFIS_RECENTES);
-      localStorage.removeItem(LS_KEYS.AUTOLOGIN);
-    }
+    return;
+  }
 
-    function atualizarUltimoPerfilLabel() {
-      const perfil = getPerfilAtualLocal();
-      $("#lastProfileLabel").textContent = perfil?.nome || "nenhum";
-    }
+  // outras páginas
+  window.location = pagina;
+};
 
-    function irParaApp() {
-      window.location.href = "app.html";
-    }
+function promptComLista(html) {
 
-    /* =========================================================
-       FIRESTORE PERFIS
-    ========================================================= */
-    async function buscarPerfisFirestore() {
-      const perfisRef = collection(db, PERFIS_COLLECTION);
-      const q = query(
-        perfisRef,
-        where("ativo", "==", true),
-        orderBy("ultimoAcessoEm", "desc"),
-        limit(PERFIS_LIMIT)
-      );
+  const overlay = document.createElement("div");
 
-      const snap = await getDocs(q);
-      return snap.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data()
-      }));
-    }
+  overlay.style = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.5);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+  `;
 
-    async function buscarPerfilPorId(id) {
-      const ref = doc(db, PERFIS_COLLECTION, id);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) return null;
-      return { id: snap.id, ...snap.data() };
-    }
+  overlay.innerHTML = `
+    <div style="
+      background:white;
+      padding:20px;
+      border-radius:12px;
+      width:90%;
+      max-width:400px;
+      box-sizing:border-box;
+    ">
 
-    async function criarOuAtualizarPerfil({ nome, apelido = "" }) {
-      const id = slugPerfil(nome);
-      const ref = doc(db, PERFIS_COLLECTION, id);
+      ${html}
 
-      const payload = {
-        nome: nome.trim(),
-        apelido: apelido.trim(),
-        nomeBusca: normalizarTexto(nome),
-        ativo: true,
-        ultimoAcessoEm: serverTimestamp()
+      <div style="
+        display:flex;
+        justify-content:flex-end;
+        gap:10px;
+        margin-top:20px;
+      ">
+
+        <button id="cancelarBtn">
+          Cancelar
+        </button>
+
+        <button
+          id="okBtn"
+          style="
+            background:#2196f3;
+            color:white;
+            border:none;
+            padding:8px 14px;
+            border-radius:6px;
+          "
+        >
+          Continuar
+        </button>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  return new Promise(resolve => {
+
+    document
+      .getElementById("cancelarBtn")
+      .onclick = () => {
+
+        overlay.remove();
+        resolve(null);
       };
 
-      const jaExiste = await getDoc(ref);
+    document
+      .getElementById("okBtn")
+      .onclick = () => {
 
-      if (!jaExiste.exists()) {
-        payload.criadoEm = serverTimestamp();
-      }
+        const valor = document
+          .getElementById("nomeInspetor")
+          .value
+          .trim();
 
-      await setDoc(ref, payload, { merge: true });
-
-      return {
-        id,
-        nome: nome.trim(),
-        apelido: apelido.trim()
-      };
-    }
-
-    /* =========================================================
-       RENDER PERFIS
-    ========================================================= */
-    function renderPerfis(lista = []) {
-      const wrap = $("#recentProfiles");
-      const countLabel = $("#recentCountLabel");
-
-      wrap.innerHTML = "";
-      countLabel.textContent = `${lista.length} perfil${lista.length === 1 ? "" : "s"} encontrado${lista.length === 1 ? "" : "s"}`;
-
-      if (!lista.length) {
-        wrap.innerHTML = `<div class="empty">Nenhum perfil salvo ainda neste aparelho ou no banco.</div>`;
-        return;
-      }
-
-      lista.forEach(perfil => {
-        const div = document.createElement("div");
-        div.className = "profile-item";
-
-        const meta = perfil.ultimoAcessoEmLocal
-          ? `Último uso neste aparelho: ${formatarDataLocal(perfil.ultimoAcessoEmLocal)}`
-          : perfil.apelido
-            ? `Apelido: ${perfil.apelido}`
-            : "Perfil disponível";
-
-        div.innerHTML = `
-          <div class="profile-left">
-            <div class="avatar">${obterIniciais(perfil.nome || "Mecânico")}</div>
-            <div class="profile-text">
-              <div class="profile-name">${perfil.nome || "-"}</div>
-              <div class="profile-meta">${meta}</div>
-            </div>
-          </div>
-
-          <div class="profile-actions">
-            <button class="btn btn-primary btn-sm" data-action="entrar" data-id="${perfil.id}">
-              Entrar
-            </button>
-            <button class="btn btn-secondary btn-sm" data-action="usar" data-nome="${(perfil.nome || "").replace(/"/g, "&quot;")}" data-apelido="${(perfil.apelido || "").replace(/"/g, "&quot;")}">
-              Preencher
-            </button>
-          </div>
-        `;
-
-        wrap.appendChild(div);
-      });
-    }
-
-    async function carregarPerfis() {
-      const statusEl = $("#statusRecent");
-      hideStatus(statusEl);
-      setLoading($("#recentProfiles"), true);
-
-      try {
-        const local = getPerfisRecentesLocal();
-
-        let remotos = [];
-        try {
-          remotos = await buscarPerfisFirestore();
-        } catch (err) {
-          console.warn("Falha ao carregar perfis do Firestore:", err);
-        }
-
-        const mapa = new Map();
-
-        local.forEach(p => {
-          mapa.set(p.id, {
-            id: p.id,
-            nome: p.nome,
-            apelido: p.apelido || "",
-            ultimoAcessoEmLocal: p.ultimoAcessoEm || null
-          });
-        });
-
-        remotos.forEach(p => {
-          if (mapa.has(p.id)) {
-            mapa.set(p.id, {
-              ...mapa.get(p.id),
-              ...p
-            });
-          } else {
-            mapa.set(p.id, {
-              id: p.id,
-              nome: p.nome,
-              apelido: p.apelido || ""
-            });
-          }
-        });
-
-        const listaFinal = Array.from(mapa.values()).slice(0, PERFIS_LIMIT);
-        renderPerfis(listaFinal);
-
-        if (!listaFinal.length) {
-          showStatus(statusEl, "Nenhum perfil encontrado ainda.", "warn");
-        }
-      } catch (err) {
-        console.error(err);
-        renderPerfis([]);
-        showStatus(statusEl, "Erro ao carregar os perfis.", "err");
-      } finally {
-        setLoading($("#recentProfiles"), false);
-      }
-    }
-
-    /* =========================================================
-       LOGIN / ENTRADA
-    ========================================================= */
-    async function entrarComPerfil({ nome, apelido = "" }) {
-      const statusEl = $("#statusLogin");
-      hideStatus(statusEl);
-
-      nome = (nome || "").trim();
-      apelido = (apelido || "").trim();
-
-      if (!nome) {
-        showStatus(statusEl, "Informe o nome do mecânico.", "warn");
-        $("#nomeMecanico")?.focus();
-        return;
-      }
-
-      try {
-        setLoading(document.body, true);
-
-        const perfil = await criarOuAtualizarPerfil({ nome, apelido });
-
-        const perfilFinal = {
-          id: perfil.id,
-          nome: perfil.nome,
-          apelido: perfil.apelido || "",
-          entrouEm: new Date().toISOString()
-        };
-
-        salvarPerfilAtualLocal(perfilFinal);
-        adicionarPerfilAosRecentes(perfilFinal);
-        atualizarUltimoPerfilLabel();
-
-        showStatus(statusEl, `Perfil ${perfil.nome} pronto. Entrando no app...`, "ok");
-
-        setTimeout(() => {
-          irParaApp();
-        }, 500);
-      } catch (err) {
-        console.error(err);
-        showStatus(statusEl, "Não foi possível acessar o perfil agora.", "err");
-      } finally {
-        setLoading(document.body, false);
-      }
-    }
-
-    async function usarUltimoPerfil() {
-      const statusEl = $("#statusLogin");
-      hideStatus(statusEl);
-
-      try {
-        const perfil = getPerfilAtualLocal();
-        if (!perfil?.id) {
-          showStatus(statusEl, "Nenhum último perfil foi encontrado neste aparelho.", "warn");
+        if (!valor) {
+          alert("Digite o nome do inspetor");
           return;
         }
 
-        // tenta confirmar que o perfil ainda existe
-        let remoto = null;
-        try {
-          remoto = await buscarPerfilPorId(perfil.id);
-        } catch (err) {
-          console.warn("Não foi possível validar perfil no Firestore:", err);
-        }
+        overlay.remove();
+        resolve(valor);
+      };
+  });
+}
 
-        const perfilFinal = {
-          id: perfil.id,
-          nome: remoto?.nome || perfil.nome,
-          apelido: remoto?.apelido || perfil.apelido || "",
-          entrouEm: new Date().toISOString()
-        };
-
-        salvarPerfilAtualLocal(perfilFinal);
-        adicionarPerfilAosRecentes(perfilFinal);
-        atualizarUltimoPerfilLabel();
-
-        showStatus(statusEl, `Entrando como ${perfilFinal.nome}...`, "ok");
-
-        setTimeout(() => {
-          irParaApp();
-        }, 350);
-      } catch (err) {
-        console.error(err);
-        showStatus(statusEl, "Erro ao usar o último perfil.", "err");
+  // Lógica de Logout
+  async function logout() {
+    if (confirm("Deseja realmente sair do sistema?")) {
+      try {
+        await signOut(auth);
+        alert("Você saiu!");
+      } catch (error) {
+        console.error("Erro ao sair:", error);
       }
     }
+  }
 
-    /* =========================================================
-       EVENTOS
-    ========================================================= */
-    $("#btnEntrarPerfil").addEventListener("click", async () => {
-      await entrarComPerfil({
-        nome: $("#nomeMecanico").value,
-        apelido: $("#apelidoMecanico").value
-      });
-    });
+    // Registra o Service Worker
+if ('serviceWorker' in navigator) {
 
-    $("#btnUsarUltimoPerfil").addEventListener("click", async () => {
-      await usarUltimoPerfil();
-    });
+  navigator.serviceWorker.register('/sw.js', {
+    scope: '/'
+  })
+  .then(() => {
+    console.log("Service Worker Registrado!");
+  })
+  .catch(err => {
+    console.error(err);
+  });
+}
+// --- LÓGICA DE INSTALAÇÃO DO PWA ATUALIZADA ---
+let gatilhoInstalacao;
+const bannerInstalar = document.getElementById('bannerInstalar');
+const btnInstalarAcao = document.getElementById('btnInstalarAcao');
 
-    $("#btnRefreshProfiles").addEventListener("click", async () => {
-      await carregarPerfis();
-    });
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Impede o banner padrão do navegador
+  e.preventDefault();
+  // Guarda o evento
+  gatilhoInstalacao = e;
+  // Mostra o novo banner azul abaixo da topbar
+  bannerInstalar.style.display = 'flex'; 
+});
 
-    $("#btnClearLocalProfiles").addEventListener("click", () => {
-      limparPerfisLocais();
-      atualizarUltimoPerfilLabel();
-      renderPerfis([]);
-      showStatus($("#statusRecent"), "Perfis locais removidos deste aparelho.", "ok");
-    });
+btnInstalarAcao.addEventListener('click', async () => {
+  if (!gatilhoInstalacao) return;
 
-    $("#recentProfiles").addEventListener("click", async (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
+  // Abre a caixinha oficial de instalação do Android
+  gatilhoInstalacao.prompt();
+  
+  const { outcome } = await gatilhoInstalacao.userChoice;
+  console.log(`Usuário escolheu: ${outcome}`);
 
-      const action = btn.dataset.action;
+  // Limpa o evento e esconde o banner
+  gatilhoInstalacao = null;
+  bannerInstalar.style.display = 'none';
+});
 
-      if (action === "entrar") {
-        const id = btn.dataset.id;
-        if (!id) return;
-
-        try {
-          const perfil = await buscarPerfilPorId(id);
-          if (!perfil) {
-            showStatus($("#statusRecent"), "Esse perfil não foi encontrado no banco.", "warn");
-            return;
-          }
-
-          await entrarComPerfil({
-            nome: perfil.nome,
-            apelido: perfil.apelido || ""
-          });
-        } catch (err) {
-          console.error(err);
-          showStatus($("#statusRecent"), "Erro ao entrar com esse perfil.", "err");
-        }
-      }
-
-      if (action === "usar") {
-        $("#nomeMecanico").value = btn.dataset.nome || "";
-        $("#apelidoMecanico").value = btn.dataset.apelido || "";
-        $("#nomeMecanico").focus();
-      }
-    });
-
-    $("#nomeMecanico").addEventListener("keydown", async (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        await entrarComPerfil({
-          nome: $("#nomeMecanico").value,
-          apelido: $("#apelidoMecanico").value
-        });
-      }
-    });
-
-    $("#apelidoMecanico").addEventListener("keydown", async (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        await entrarComPerfil({
-          nome: $("#nomeMecanico").value,
-          apelido: $("#apelidoMecanico").value
-        });
-      }
-    });
-
-    /* =========================================================
-       INIT
-    ========================================================= */
-    async function init() {
-      atualizarUltimoPerfilLabel();
-      await carregarPerfis();
-
-      const ultimo = getPerfilAtualLocal();
-      if (ultimo?.nome) {
-        $("#nomeMecanico").value = ultimo.nome || "";
-        $("#apelidoMecanico").value = ultimo.apelido || "";
-      }
-    }
-
-    init();
+window.addEventListener('appinstalled', () => {
+  console.log('App instalado com sucesso!');
+  bannerInstalar.style.display = 'none';
+});
+  
   </script>
-</body>
-</html>
+
+  </body>
+  </html>
